@@ -25,7 +25,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			);
 		$this->args = wp_parse_args( $assoc_args, $defaults );
 
-		$users = get_users();
+		$users = get_users( array( 'role__in' => array( 'administrator', 'editor', 'author' ) ) );
 		$created = 0;
 		$skipped = 0;
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Processing guest authors...', count ( $users ) );
