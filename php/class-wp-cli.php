@@ -11,7 +11,22 @@ WP_CLI::add_command( 'co-authors-plus', 'CoAuthorsPlus_Command' );
 class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 	/**
-	 * Subcommand to create guest authors based on users
+	 * Subcommand to create guest authors for all users.
+	 *
+	 * ## OPTIONS
+	 *
+	 * --roles
+	 * Provide a comma-separated list of roles to generate guest authors for.
+	 *
+	 * Defaults to: administrator,editor,author,contributor.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp co-authors-plus create-guest-authors
+	 * Generate guest authors for administrators, editors, authors, and contributors.
+	 *
+	 * wp co-authors-plus create-guest-authors --roles=author,freelancer
+	 * Generate guest authors only for authors and freelancers.
 	 *
 	 * @since 3.0
 	 *
@@ -21,11 +36,24 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		global $coauthors_plus;
 
 		$defaults = array(
-				// There are no arguments at this time
-			);
+			'roles' => array( 'administrator', 'editor', 'author', 'contributor' ),
+		);
 		$this->args = wp_parse_args( $assoc_args, $defaults );
 
-		$users = get_users( array( 'role__in' => array( 'administrator', 'editor', 'author' ) ) );
+		if ( is_array( $this->args['roles'] ) ) {
+			$role_whitelist = $this->args['roles'];
+		} else {
+			$role_whitelist = explode( ',', $this->args['roles'] );
+		}
+
+		foreach ( $role_whitelist as $role ) {
+			// Does this role exist in this instance?
+			if ( ! $GLOBALS['wp_roles']->is_role( $role ) ) {
+				WP_CLI::error( __( 'Role ', 'co-authors-plus' ) . $role . __( ' does not exist.', 'co-authors-plus' ) );
+			}
+		}
+
+		$users = get_users( array( 'role__in' => $role_whitelist ) );
 		$created = 0;
 		$skipped = 0;
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Processing guest authors...', count ( $users ) );
