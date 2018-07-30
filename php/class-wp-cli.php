@@ -22,6 +22,13 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 *
 	 * For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.
 	 *
+	 * --batch-size
+	 * Many sites have a large user list, which could cause troubles when filtering roles prior to guest author generation. This allows you to set a batch size appropriate for your server's memory limit.
+	 *
+	 * Defaults to: 1000.
+	 *
+	 * Must be an integer greater than 0. Decimals (e.g. 500.5) will be rounded down, exponents (e.g. 10e6) will be ignored.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp co-authors-plus create-guest-authors
@@ -29,6 +36,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 *
 	 * wp co-authors-plus create-guest-authors --roles=author,freelancer
 	 * Generate guest authors only for authors and freelancers.
+	 *
+	 * wp co-authors-plus create-guest-authors --batch-size=5000
+	 * Generate guest authors, filtering in batches of 5000.
 	 *
 	 * @since 3.0
 	 *
@@ -39,6 +49,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 		$defaults = array(
 			'roles' => array( 'administrator', 'editor', 'author', 'contributor' ),
+			'batch-size' => 1000,
 		);
 		$this->args = wp_parse_args( $assoc_args, $defaults );
 
@@ -46,6 +57,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			$role_whitelist = $this->args['roles'];
 		} else {
 			$role_whitelist = explode( ',', $this->args['roles'] );
+		}
+
+		if ( $this->args['batch-size'] > 0 && is_numeric( $this->args['batch-size'] ) ) {
+			$batch_size = (int) $this->args['batch-size'];
+		} else {
+			WP_CLI::error( __( 'Batch size must be an integer greater than zero.', 'co-authors-plus' ) );
 		}
 
 		foreach ( $role_whitelist as $role ) {
@@ -61,7 +78,47 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			}
 		}
 
-		$users = get_users( array( 'role__in' => $role_whitelist ) );
+		$users_unfiltered_query = new WP_User_Query( array( 'number' => $batch_size ) );
+		$users_count            = $users_unfiltered_query->get_total();
+		$users_unfiltered       = $users_unfiltered_query->get_results();
+		$users                  = array();
+
+		// Process the first batch retrieved while checking the table size.
+		foreach ( $users_unfiltered as $user ) {
+			foreach ( $user->roles as $role ) {
+				if ( in_array( $role, $role_whitelist, true ) ) {
+					// Using the user ID ensures that users that would otherwise
+					// be in the list twice overwrite each other.
+					$users[ $user->ID ] = $user;
+				}
+			}
+		}
+
+		$num_batches = ceil( $users_count / $batch_size );
+
+		// Process the remaining batches.
+		for ( $i = 1; $i < $num_batches; $i++ ) {
+			$users_unfiltered_query = new WP_User_Query(
+				array(
+					'number' => $batch_size,
+					'offset' => $batch_size * $i,
+				)
+			);
+
+			$users_unfiltered = $users_unfiltered_query->get_results();
+
+			foreach ( $users_unfiltered as $user ) {
+				foreach ( $user->roles as $role ) {
+					if ( in_array( $role, $role_whitelist, true ) ) {
+						$users[ $user->ID ] = $user;
+					}
+				}
+			}
+		}
+
+		// Discard user ID indices, rebase to 0.
+		$users = array_values( $users );
+
 		$created = 0;
 		$skipped = 0;
 		$progress = \WP_CLI\Utils\make_progress_bar( 'Processing guest authors...', count ( $users ) );

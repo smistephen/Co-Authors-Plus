@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Co-Authors Plus 3.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/Co-Authors-Plus\n"
-"POT-Creation-Date: 2018-07-30 00:14:51+00:00\n"
+"POT-Creation-Date: 2018-07-30 11:31:18+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -530,37 +530,41 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
-#: php/class-wp-cli.php:52
+#: php/class-wp-cli.php:55
+msgid "Batch size must be an integer greater than zero."
+msgstr ""
+
+#: php/class-wp-cli.php:61
 msgid "Role "
 msgstr ""
 
-#: php/class-wp-cli.php:52
+#: php/class-wp-cli.php:61
 msgid " does not exist."
 msgstr ""
 
-#: php/class-wp-cli.php:58
+#: php/class-wp-cli.php:67
 msgid ""
 "For performance reasons, subscribers cannot be made guest authors via wp-"
 "cli. Please use the admin interface."
 msgstr ""
 
-#: php/class-wp-cli.php:262
+#: php/class-wp-cli.php:311
 msgid "Please specify a valid user_login"
 msgstr ""
 
-#: php/class-wp-cli.php:266
+#: php/class-wp-cli.php:315
 msgid "Please specify a valid co-author login"
 msgstr ""
 
-#: php/class-wp-cli.php:276
+#: php/class-wp-cli.php:325
 msgid "Skipping - Post #%d already has co-authors assigned: %s"
 msgstr ""
 
-#: php/class-wp-cli.php:284
+#: php/class-wp-cli.php:333
 msgid "Updating - Adding %s's byline to post #%d"
 msgstr ""
 
-#: php/class-wp-cli.php:290
+#: php/class-wp-cli.php:339
 msgid "All done! %d posts were affected."
 msgstr ""
 
