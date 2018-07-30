@@ -20,6 +20,8 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 *
 	 * Defaults to: administrator,editor,author,contributor.
 	 *
+	 * For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp co-authors-plus create-guest-authors
@@ -50,6 +52,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			// Does this role exist in this instance?
 			if ( ! $GLOBALS['wp_roles']->is_role( $role ) ) {
 				WP_CLI::error( __( 'Role ', 'co-authors-plus' ) . $role . __( ' does not exist.', 'co-authors-plus' ) );
+			}
+
+			// Subscribers cannot be made guest authors en masse
+			// due to potential performance issues (sites can have millions of subscribers).
+			if ( 'subscriber' === $role ) {
+				WP_CLI::error( __( 'For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.', 'co-authors-plus' ) );
 			}
 		}
 
