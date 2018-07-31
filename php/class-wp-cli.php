@@ -68,7 +68,11 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		foreach ( $role_whitelist as $role ) {
 			// Does this role exist in this instance?
 			if ( ! $GLOBALS['wp_roles']->is_role( $role ) ) {
-				WP_CLI::error( __( 'Role ', 'co-authors-plus' ) . $role . __( ' does not exist.', 'co-authors-plus' ) );
+				WP_CLI::error( sprintf(
+					/* translators: %s: User role */
+					__( 'Role %s does not exist.', 'co-authors-plus' ),
+					$role
+				) );
 			}
 
 			// Subscribers cannot be made guest authors en masse
