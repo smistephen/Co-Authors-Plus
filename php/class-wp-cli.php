@@ -30,6 +30,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * --force-subscribers
 	 * For performance reasons, it is not recommended you include subscribers in your automatic generation. Using the admin interface to generate one-off subscriber guest authors is likely to be a better alternative. However, you can pass this flag to include them.
 	 *
+	 * --not-a-dry-run
+	 * By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass this flag.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp co-authors-plus create-guest-authors
@@ -47,6 +50,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * wp co-authors-plus create-guest-authors --roles=author,subscriber --force-subscribers
 	 * This command will succeed. NOTE: Your site may have many subscribers, which may make the command take a long time to run.
 	 *
+	 * wp co-authors-plus create-guest-authors --not-a-dry-run
+	 * Will actually modify your database and generate guest authors.
+	 *
 	 * @since 3.0
 	 *
 	 * @subcommand create-guest-authors
@@ -58,6 +64,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			'roles'             => array( 'administrator', 'editor', 'author', 'contributor' ),
 			'batch-size'        => 1000,
 			'force-subscribers' => false,
+			'not-a-dry-run'     => false,
 		);
 
 		$this->args = wp_parse_args( $assoc_args, $defaults );
@@ -78,6 +85,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			$force_subscribers = true;
 		} else {
 			$force_subscribers = false;
+		}
+
+		if ( is_bool( $this->args['not-a-dry-run'] ) && true === $this->args['not-a-dry-run'] ) {
+			$dry_run = false;
+		} else {
+			$dry_run = true;
 		}
 
 		foreach ( $role_whitelist as $role ) {
@@ -138,23 +151,33 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		// Discard user ID indices, rebase to 0.
 		$users = array_values( $users );
 
-		$created = 0;
-		$skipped = 0;
-		$progress = \WP_CLI\Utils\make_progress_bar( 'Processing guest authors...', count ( $users ) );
-		foreach ( $users as $user ) {
-
-			$result = $coauthors_plus->guest_authors->create_guest_author_from_user_id( $user->ID );
-			if ( is_wp_error( $result ) ) {
-				$skipped++;
-			} else {
-				$created++;
+		if ( true === $dry_run ) {
+			WP_CLI::line( __( 'DRY RUN', 'co-authors-plus' ) );
+			foreach ( $users as $user ) {
+				WP_CLI::line( sprintf(
+					/* translators: %d: User ID */
+					__( 'Attempting to generate guest author for user ID %d.', 'co-authors-plus' ),
+					$user->ID
+				) );
 			}
-			$progress->tick();
+		} else {
+			$created = 0;
+			$skipped = 0;
+			$progress = \WP_CLI\Utils\make_progress_bar( 'Processing guest authors...', count ( $users ) );
+			foreach ( $users as $user ) {
+				$result = $coauthors_plus->guest_authors->create_guest_author_from_user_id( $user->ID );
+				if ( is_wp_error( $result ) ) {
+					$skipped++;
+				} else {
+					$created++;
+				}
+				$progress->tick();
+			}
+			$progress->finish();
+			WP_CLI::line( 'All done! Here are your results:' );
+			WP_CLI::line( "- {$created} guest author profiles were created" );
+			WP_CLI::line( "- {$skipped} users already had guest author profiles" );
 		}
-		$progress->finish();
-		WP_CLI::line( 'All done! Here are your results:' );
-		WP_CLI::line( "- {$created} guest author profiles were created" );
-		WP_CLI::line( "- {$skipped} users already had guest author profiles" );
 	}
 
 	/**
