@@ -20,14 +20,15 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 *
 	 * Defaults to: administrator,editor,author,contributor.
 	 *
-	 * For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.
-	 *
 	 * --batch-size
 	 * Many sites have a large user list, which could cause troubles when filtering roles prior to guest author generation. This allows you to set a batch size appropriate for your server's memory limit.
 	 *
 	 * Defaults to: 1000.
 	 *
 	 * Must be an integer greater than 0. Decimals (e.g. 500.5) will be rounded down, exponents (e.g. 10e6) will be ignored.
+	 *
+	 * --force-subscribers
+	 * For performance reasons, it is not recommended you include subscribers in your automatic generation. Using the admin interface to generate one-off subscriber guest authors is likely to be a better alternative. However, you can pass this flag to include them.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -40,6 +41,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * wp co-authors-plus create-guest-authors --batch-size=5000
 	 * Generate guest authors, filtering in batches of 5000.
 	 *
+	 * wp co-authors-plus create-guest-authors --roles=author,subscriber
+	 * This command will fail.
+	 *
+	 * wp co-authors-plus create-guest-authors --roles=author,subscriber --force-subscribers
+	 * This command will succeed. NOTE: Your site may have many subscribers, which may make the command take a long time to run.
+	 *
 	 * @since 3.0
 	 *
 	 * @subcommand create-guest-authors
@@ -48,9 +55,11 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		global $coauthors_plus;
 
 		$defaults = array(
-			'roles' => array( 'administrator', 'editor', 'author', 'contributor' ),
-			'batch-size' => 1000,
+			'roles'             => array( 'administrator', 'editor', 'author', 'contributor' ),
+			'batch-size'        => 1000,
+			'force-subscribers' => false,
 		);
+
 		$this->args = wp_parse_args( $assoc_args, $defaults );
 
 		if ( is_array( $this->args['roles'] ) ) {
@@ -65,6 +74,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			WP_CLI::error( __( 'Batch size must be an integer greater than zero.', 'co-authors-plus' ) );
 		}
 
+		if ( is_bool( $this->args['force-subscribers'] ) && true === $this->args['force-subscribers'] ) {
+			$force_subscribers = true;
+		} else {
+			$force_subscribers = false;
+		}
+
 		foreach ( $role_whitelist as $role ) {
 			// Does this role exist in this instance?
 			if ( ! $GLOBALS['wp_roles']->is_role( $role ) ) {
@@ -77,7 +92,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 			// Subscribers cannot be made guest authors en masse
 			// due to potential performance issues (sites can have millions of subscribers).
-			if ( 'subscriber' === $role ) {
+			if ( 'subscriber' === $role && false === $force_subscribers ) {
 				WP_CLI::error( __( 'For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.', 'co-authors-plus' ) );
 			}
 		}
