@@ -33,6 +33,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * --not-a-dry-run
 	 * By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass this flag.
 	 *
+	 * --log-output
+	 * Passing this flag will output the results of the attempts at guest author creation. It logs to STDOUT, but you can redirect it to a file if you wish.
+	 *
 	 * ## EXAMPLES
 	 *
 	 * wp co-authors-plus create-guest-authors
@@ -53,6 +56,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * wp co-authors-plus create-guest-authors --not-a-dry-run
 	 * Will actually modify your database and generate guest authors.
 	 *
+	 * wp co-authors-plus create-guest-authors --log-output
+	 * Show results of guest author creation attempts as they happen.
+	 *
 	 * @since 3.0
 	 *
 	 * @subcommand create-guest-authors
@@ -65,6 +71,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			'batch-size'        => 1000,
 			'force-subscribers' => false,
 			'not-a-dry-run'     => false,
+			'log-output'        => false,
 		);
 
 		$this->args = wp_parse_args( $assoc_args, $defaults );
@@ -91,6 +98,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			$dry_run = false;
 		} else {
 			$dry_run = true;
+		}
+
+		if ( is_bool( $this->args['log-output'] ) && true === $this->args['log-output'] ) {
+			$log_output = true;
+		} else {
+			$log_output = false;
 		}
 
 		foreach ( $role_whitelist as $role ) {
@@ -168,10 +181,29 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				$result = $coauthors_plus->guest_authors->create_guest_author_from_user_id( $user->ID );
 				if ( is_wp_error( $result ) ) {
 					$skipped++;
+					if ( true === $log_output ) {
+						foreach ( $result->get_error_messages() as $error_message ) {
+							WP_CLI::line( sprintf(
+								/* translators: 1: User ID 2: Error message returned from guest author generation attempt */
+								__( 'Error while attempting to generate guest author for user ID %1$d: %2$s', 'co-authors-plus' ),
+								$user->ID,
+								$error_message
+							) );
+						}
+					}
 				} else {
 					$created++;
+					if ( true === $log_output ) {
+						WP_CLI::line( sprintf(
+							/* translators: 1: User ID 2: Guest Author ID */
+							__( 'User ID %1$d is now linked to Guest Author %2$d', 'co-authors-plus' ),
+							$user->ID,
+							$result
+						) );
+					}
 				}
 				$progress->tick();
+
 			}
 			$progress->finish();
 			WP_CLI::line( 'All done! Here are your results:' );
