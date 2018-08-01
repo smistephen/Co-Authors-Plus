@@ -30,8 +30,8 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * [--force-subscribers]
 	 * : For performance reasons, it is not recommended you include subscribers in your automatic generation. Using the admin interface to generate one-off subscriber guest authors is likely to be a better alternative. However, you can pass this flag to include them.
 	 *
-	 * [--not-a-dry-run]
-	 * : By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass this flag.
+	 * [--dry-run]
+	 * : By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass --no-dry-run.
 	 *
 	 * [--log-output]
 	 * : Passing this flag will output the results of the attempts at guest author creation. It logs to STDOUT, but you can redirect it to a file if you wish.
@@ -44,7 +44,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * Attempting to generate guest author for user ID 1
 	 *
 	 * # Generate guest authors for administrators, editors, authors, and contributors.
-	 * $ wp co-authors-plus create-guest-authors --not-a-dry-run
+	 * $ wp co-authors-plus create-guest-authors --no-dry-run
 	 * All done! Here are your results:
 	 *
 	 * # Generate guest authors only for authors and freelancers.
@@ -64,7 +64,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * All done! Here are your results:
 	 *
 	 * # Will actually modify your database and generate guest authors.
-	 * $ wp co-authors-plus create-guest-authors --not-a-dry-run
+	 * $ wp co-authors-plus create-guest-authors --no-dry-run
 	 * All done! Here are your results:
 	 *
 	 * # Show results of guest author creation attempts as they happen.
@@ -75,7 +75,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * @since 3.0
 	 *
 	 * @subcommand create-guest-authors
-	 * @synopsis [--roles=<roles>] [--batch-size=<batch-size>] [--force-subscribers] [--not-a-dry-run] [--log-output]
+	 * @synopsis [--roles=<roles>] [--batch-size=<batch-size>] [--force-subscribers] [--dry-run] [--log-output]
 	 */
 	public function create_guest_authors( $args, $assoc_args ) {
 		global $coauthors_plus;
@@ -84,7 +84,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			'roles'             => array( 'administrator', 'editor', 'author', 'contributor' ),
 			'batch-size'        => 1000,
 			'force-subscribers' => false,
-			'not-a-dry-run'     => false,
+			'dry-run'           => true,
 			'log-output'        => false,
 		);
 
@@ -101,16 +101,16 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			WP_CLI::error( __( 'Batch size must be an integer greater than zero.', 'co-authors-plus' ) );
 		}
 
-		if ( is_bool( $this->args['force-subscribers'] ) && true === $this->args['force-subscribers'] ) {
+		if ( true === $this->args['force-subscribers'] ) {
 			$force_subscribers = true;
 		} else {
 			$force_subscribers = false;
 		}
 
-		if ( is_bool( $this->args['not-a-dry-run'] ) && true === $this->args['not-a-dry-run'] ) {
-			$dry_run = false;
-		} else {
+		if ( true === $this->args['dry-run'] ) {
 			$dry_run = true;
+		} else {
+			$dry_run = false;
 		}
 
 		if ( is_bool( $this->args['log-output'] ) && true === $this->args['log-output'] ) {
