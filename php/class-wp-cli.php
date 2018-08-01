@@ -118,7 +118,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			// Subscribers cannot be made guest authors en masse
 			// due to potential performance issues (sites can have millions of subscribers).
 			if ( 'subscriber' === $role && false === $force_subscribers ) {
-				WP_CLI::error( __( 'For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface.', 'co-authors-plus' ) );
+				WP_CLI::error( __( 'For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface, or pass the argument --force-subscribers.', 'co-authors-plus' ) );
 			}
 		}
 
