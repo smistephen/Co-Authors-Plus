@@ -101,23 +101,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			WP_CLI::error( __( 'Batch size must be an integer greater than zero.', 'co-authors-plus' ) );
 		}
 
-		if ( true === $this->args['force-subscribers'] ) {
-			$force_subscribers = true;
-		} else {
-			$force_subscribers = false;
-		}
-
-		if ( true === $this->args['dry-run'] ) {
-			$dry_run = true;
-		} else {
-			$dry_run = false;
-		}
-
-		if ( is_bool( $this->args['log-output'] ) && true === $this->args['log-output'] ) {
-			$log_output = true;
-		} else {
-			$log_output = false;
-		}
+		$force_subscribers = $this->args['force-subscribers'];
+		$dry_run           = $this->args['dry-run'];
+		$log_output        = $this->args['log-output'];
 
 		foreach ( $role_whitelist as $role ) {
 			// Does this role exist in this instance?
