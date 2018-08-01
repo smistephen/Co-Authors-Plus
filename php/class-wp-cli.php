@@ -136,7 +136,8 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			}
 		}
 
-		$users_unfiltered_query = new WP_User_Query( array( 'number' => $batch_size ) );
+		// Ordering by ID because MySQL doesn't use the user_login array index for sorting.
+		$users_unfiltered_query = new WP_User_Query( array( 'number' => $batch_size, 'orderby' => 'ID' ) );
 		$users_count            = $users_unfiltered_query->get_total();
 		$users_unfiltered       = $users_unfiltered_query->get_results();
 		$users                  = array();
@@ -160,6 +161,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				array(
 					'number' => $batch_size,
 					'offset' => $batch_size * $i,
+					'orderby' => 'ID'
 				)
 			);
 
