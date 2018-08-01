@@ -76,15 +76,14 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 		$this->args = wp_parse_args( $assoc_args, $defaults );
 
-		if ( is_array( $this->args['roles'] ) ) {
-			$role_whitelist = $this->args['roles'];
-		} else {
-			$role_whitelist = explode( ',', $this->args['roles'] );
+		$role_whitelist = $this->args['roles'];
+
+		if ( ! is_array( $role_whitelist ) ) {
+			$role_whitelist = explode( ',', $role_whitelist );
 		}
 
-		if ( $this->args['batch-size'] > 0 && is_numeric( $this->args['batch-size'] ) ) {
-			$batch_size = (int) $this->args['batch-size'];
-		} else {
+		$batch_size = (int) $this->args['batch-size'];
+		if ( $batch_size <= 0 ) {
 			WP_CLI::error( __( 'Batch size must be an integer greater than zero.', 'co-authors-plus' ) );
 		}
 
