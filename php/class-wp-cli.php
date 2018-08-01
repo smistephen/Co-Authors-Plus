@@ -15,53 +15,67 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * --roles
-	 * Provide a comma-separated list of roles to generate guest authors for.
+	 * [--roles=<roles>]
+	 * : Provide a comma-separated list of roles to generate guest authors for.
+	 * ---
+	 * default: administrator,editor,author,contributor
+	 * ---
 	 *
-	 * Defaults to: administrator,editor,author,contributor.
+	 * [--batch-size=<batch-size>]
+	 * : Many sites have a large user list, which could cause troubles when filtering roles prior to guest author generation. This allows you to set a batch size appropriate for your server's memory limit. Any integer greater than 0. Decimals (e.g. 500.5) will be rounded down, exponents (e.g. 10e6) will be ignored.
+	 * ---
+	 * default: 1000
+	 * ---
 	 *
-	 * --batch-size
-	 * Many sites have a large user list, which could cause troubles when filtering roles prior to guest author generation. This allows you to set a batch size appropriate for your server's memory limit.
+	 * [--force-subscribers]
+	 * : For performance reasons, it is not recommended you include subscribers in your automatic generation. Using the admin interface to generate one-off subscriber guest authors is likely to be a better alternative. However, you can pass this flag to include them.
 	 *
-	 * Defaults to: 1000.
+	 * [--not-a-dry-run]
+	 * : By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass this flag.
 	 *
-	 * Must be an integer greater than 0. Decimals (e.g. 500.5) will be rounded down, exponents (e.g. 10e6) will be ignored.
-	 *
-	 * --force-subscribers
-	 * For performance reasons, it is not recommended you include subscribers in your automatic generation. Using the admin interface to generate one-off subscriber guest authors is likely to be a better alternative. However, you can pass this flag to include them.
-	 *
-	 * --not-a-dry-run
-	 * By default, the command outputs the IDs of the users it would have attempted to generate guest authors for, had this not been a dry run. When you are ready to modify data, pass this flag.
-	 *
-	 * --log-output
-	 * Passing this flag will output the results of the attempts at guest author creation. It logs to STDOUT, but you can redirect it to a file if you wish.
+	 * [--log-output]
+	 * : Passing this flag will output the results of the attempts at guest author creation. It logs to STDOUT, but you can redirect it to a file if you wish.
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp co-authors-plus create-guest-authors
-	 * Generate guest authors for administrators, editors, authors, and contributors.
+	 * # Simulate generating guest authors for administrators, editors, authors, and contributors.
+	 * $ wp co-authors-plus create-guest-authors
+	 * DRY RUN
+	 * Attempting to generate guest author for user ID 1
 	 *
-	 * wp co-authors-plus create-guest-authors --roles=author,freelancer
-	 * Generate guest authors only for authors and freelancers.
+	 * # Generate guest authors for administrators, editors, authors, and contributors.
+	 * $ wp co-authors-plus create-guest-authors --not-a-dry-run
+	 * All done! Here are your results:
 	 *
-	 * wp co-authors-plus create-guest-authors --batch-size=5000
-	 * Generate guest authors, filtering in batches of 5000.
+	 * # Generate guest authors only for authors and freelancers.
+	 * $ wp co-authors-plus create-guest-authors --roles=author,freelancer
+	 * All done! Here are your results:
 	 *
-	 * wp co-authors-plus create-guest-authors --roles=author,subscriber
-	 * This command will fail.
+	 * # Generate guest authors, filtering in batches of 5000.
+	 * $ wp co-authors-plus create-guest-authors --batch-size=5000
+	 * All done! Here are your results:
 	 *
-	 * wp co-authors-plus create-guest-authors --roles=author,subscriber --force-subscribers
-	 * This command will succeed. NOTE: Your site may have many subscribers, which may make the command take a long time to run.
+	 * # This command will fail.
+	 * $ wp co-authors-plus create-guest-authors --roles=author,subscriber
+	 * For performance reasons, subscribers cannot be made guest authors via wp-cli. Please use the admin interface, or pass the argument --force-subscribers.
 	 *
-	 * wp co-authors-plus create-guest-authors --not-a-dry-run
-	 * Will actually modify your database and generate guest authors.
+	 * # This command will succeed. NOTE: Your site may have many subscribers, which may make the command take a long time to run.
+	 * $ wp co-authors-plus create-guest-authors --roles=author,subscriber --force-subscribers
+	 * All done! Here are your results:
 	 *
-	 * wp co-authors-plus create-guest-authors --log-output
-	 * Show results of guest author creation attempts as they happen.
+	 * # Will actually modify your database and generate guest authors.
+	 * $ wp co-authors-plus create-guest-authors --not-a-dry-run
+	 * All done! Here are your results:
+	 *
+	 * # Show results of guest author creation attempts as they happen.
+	 * $ wp co-authors-plus create-guest-authors --log-output
+	 * User ID 1 is now linked to Guest Author 2.
+	 * Error while attempting to generate guest author for user ID 3: (error message)
 	 *
 	 * @since 3.0
 	 *
 	 * @subcommand create-guest-authors
+	 * @synopsis [--roles=<roles>] [--batch-size=<batch-size>] [--force-subscribers] [--not-a-dry-run] [--log-output]
 	 */
 	public function create_guest_authors( $args, $assoc_args ) {
 		global $coauthors_plus;
