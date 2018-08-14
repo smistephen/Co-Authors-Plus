@@ -121,15 +121,15 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			$id       = filter_var( $line[0], FILTER_SANITIZE_NUMBER_INT );
 			$assignee = filter_var( $line[1], FILTER_SANITIZE_STRING );
 
+			$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $id );
+
 			if ( true === $dry_run ) {
-				$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $id );
 
 				if ( false === $guest_author ) {
 					WP_CLI::log( sprintf(
 						/* translators: 1: Guest author ID 2: Intended assignee */
-						__( 'Attempting to delete guest author %1$d, intended assignee %2$s, but they do not exist.', 'co-authors-plus' ),
-						$id,
-						$assignee
+						__( 'Attempting to delete guest author %d, but they do not exist.', 'co-authors-plus' ),
+						$id
 					) );
 				} else {
 					WP_CLI::log( sprintf(
@@ -153,9 +153,11 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				if ( is_wp_error( $delete_status ) ) {
 					foreach ( $delete_status->get_error_messages() as $error_message ) {
 						WP_CLI::log( sprintf(
-							/* translators: 1: Guest author ID 2: Intended assignee login 3: Error message returned from guest author deletion attempt */
-							__( 'Error while attempting to delete guest author %1$d and reassign to %2$s: %3$s', 'co-authors-plus' ),
+							/* translators: 1: Guest author ID 2: Guest author display name 3: Guest author email 4: Intended assignee login 5: Error message returned from guest author deletion attempt */
+							__( 'Error while attempting to delete guest author %1$d / %2$s / $3$s and reassign to %4$s: %5$s', 'co-authors-plus' ),
 							$id,
+							$guest_author->display_name,
+							$guest_author->user_email,
 							$assignee,
 							$error_message
 						) );
@@ -163,8 +165,10 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				} else {
 					WP_CLI::log( sprintf(
 						/* translators: 1: Guest author ID 2: Intended assignee login */
-						__( 'Successfully deleted guest author %1$d and reassigned to %2$s', 'co-authors-plus' ),
+						__( 'Successfully deleted guest author %1$d / %2$s / %3$s and reassigned to %4$s', 'co-authors-plus' ),
 						$id,
+						$guest_author->display_name,
+						$guest_author->user_email,
 						$assignee
 					) );
 				}

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Co-Authors Plus 3.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/Co-Authors-Plus\n"
-"POT-Creation-Date: 2018-08-14 23:02:34+00:00\n"
+"POT-Creation-Date: 2018-08-14 23:12:27+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -552,10 +552,8 @@ msgid "DRY RUN"
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee
-#: php/class-wp-cli.php:130
-msgid ""
-"Attempting to delete guest author %1$d, intended assignee %2$s, but they do "
-"not exist."
+#: php/class-wp-cli.php:131
+msgid "Attempting to delete guest author %d, but they do not exist."
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee 3: Guest author display
@@ -566,35 +564,38 @@ msgid ""
 "Name: %3$s Email: %4$s Linked Account: %5$s"
 msgstr ""
 
-#. translators: 1: Guest author ID 2: Intended assignee login 3: Error message
-#. returned from guest author deletion attempt
+#. translators: 1: Guest author ID 2: Guest author display name 3: Guest author
+#. email 4: Intended assignee login 5: Error message returned from guest author
+#. deletion attempt
 #: php/class-wp-cli.php:157
 msgid ""
-"Error while attempting to delete guest author %1$d and reassign to %2$s: %3$s"
+"Error while attempting to delete guest author %1$d / %2$s / $3$s and "
+"reassign to %4$s: %5$s"
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee login
-#: php/class-wp-cli.php:166
-msgid "Successfully deleted guest author %1$d and reassigned to %2$s"
-msgstr ""
-
-#: php/class-wp-cli.php:358
-msgid "Please specify a valid user_login"
+#: php/class-wp-cli.php:168
+msgid ""
+"Successfully deleted guest author %1$d / %2$s / %3$s and reassigned to %4$s"
 msgstr ""
 
 #: php/class-wp-cli.php:362
+msgid "Please specify a valid user_login"
+msgstr ""
+
+#: php/class-wp-cli.php:366
 msgid "Please specify a valid co-author login"
 msgstr ""
 
-#: php/class-wp-cli.php:372
+#: php/class-wp-cli.php:376
 msgid "Skipping - Post #%d already has co-authors assigned: %s"
 msgstr ""
 
-#: php/class-wp-cli.php:380
+#: php/class-wp-cli.php:384
 msgid "Updating - Adding %s's byline to post #%d"
 msgstr ""
 
-#: php/class-wp-cli.php:386
+#: php/class-wp-cli.php:390
 msgid "All done! %d posts were affected."
 msgstr ""
 
