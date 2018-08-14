@@ -122,12 +122,26 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 			$assignee = filter_var( $line[1], FILTER_SANITIZE_STRING );
 
 			if ( true === $dry_run ) {
-				WP_CLI::log( sprintf(
-					/* translators: 1: Guest author ID 2: Intended assignee */
-					__( 'Attempting to delete guest author %1$d, intended assignee %2$s', 'co-authors-plus' ),
-					$id,
-					$assignee
-				) );
+				$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $id );
+
+				if ( false === $guest_author ) {
+					WP_CLI::log( sprintf(
+						/* translators: 1: Guest author ID 2: Intended assignee */
+						__( 'Attempting to delete guest author %1$d, intended assignee %2$s, but they do not exist.', 'co-authors-plus' ),
+						$id,
+						$assignee
+					) );
+				} else {
+					WP_CLI::log( sprintf(
+						/* translators: 1: Guest author ID 2: Intended assignee 3: Guest author display name 4: Guest author email 5: Guest author linked account */
+						__( 'Attempting to delete guest author %1$d, intended assignee %2$s. Display Name: %3$s Email: %4$s Linked Account: %5$s', 'co-authors-plus' ),
+						$id,
+						$assignee,
+						$guest_author->display_name,
+						$guest_author->user_email,
+						$guest_author->linked_account
+					) );
+				}
 			} else {
 				// Have to cast so the function won't literally try and reassign to user "false".
 				if ( 'false' === $assignee ) {
