@@ -139,17 +139,19 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				if ( is_wp_error( $delete_status ) ) {
 					foreach ( $delete_status->get_error_messages() as $error_message ) {
 						WP_CLI::log( sprintf(
-							/* translators: 1: Guest author ID 2: Error message returned from guest author deletion attempt */
-							__( 'Error while attempting to delete guest author %1$d: %2$s', 'co-authors-plus' ),
+							/* translators: 1: Guest author ID 2: Intended assignee login 3: Error message returned from guest author deletion attempt */
+							__( 'Error while attempting to delete guest author %1$d and reassign to %2$s: %3$s', 'co-authors-plus' ),
 							$id,
+							$assignee,
 							$error_message
 						) );
 					}
 				} else {
 					WP_CLI::log( sprintf(
-						/* translators: %d: Guest author ID */
-						__( 'Successfully deleted guest author %d', 'co-authors-plus' ),
-						$id
+						/* translators: 1: Guest author ID 2: Intended assignee login */
+						__( 'Successfully deleted guest author %1$d and reassigned to %2$s', 'co-authors-plus' ),
+						$id,
+						$assignee
 					) );
 				}
 			}
