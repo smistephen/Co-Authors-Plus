@@ -94,6 +94,11 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		$filename = $args[0];
 
 		// Add custom error handling on fopen error.
+		// Traditionally, fopen failures result in E_WARNING messages being logged to the
+		// console. But those are really ugly and disquieting for end users to see, and usually
+		// it makes them think something is wrong with the code, rather than the simple error
+		// of "this file isn't available / isn't readable by this user / etc".
+		// So I decided to pass the message through wp-cli's display API to make it look nicer.
 		set_error_handler(
 			function( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 				WP_CLI::error( sprintf(
