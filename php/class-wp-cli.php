@@ -46,6 +46,120 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Delete guest authors.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <guest-author-ids-file>
+	 * : Provide the location of a CSV file containing a list of two columns: guest author ID to delete, and either the string "false" (which means the deleted guest author's posts will not be reassigned) or a string denoting the login of the user or guest author the deleted guest author's posts are to be reassigned to. No column headers are required or allowed, and the maximum line length including ID, login, and comma is 100 characters.
+	 *
+	 * [--dry-run]
+	 * : By default, the command outputs the IDs of the guest authors it would have attempted to delete, had this not been a dry run. When you are ready to modify data, pass --no-dry-run.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * # Dry run version of deleting guest authors.
+	 * $ wp co-authors-plus delete-guest-authors testFile.csv
+	 * DRY RUN
+	 * Attempting to delete guest author with ID 1, intended assignee smistephen
+	 *
+	 * # Actually deleting guest authors.
+	 * $ wp co-authors-plus delete-guest-authors testFile.csv --no-dry-run
+	 * You have provided the --no-dry-run flag. Please confirm you wish to delete guest authors. [y/n]
+	 * Successfully deleted guest author 1
+	 * OR
+	 * Error while attempting to delete guest author 1: Guest author does not exist.
+	 *
+	 * @subcommand delete-guest-authors
+	 * @synopsis <guest-author-ids-file> [--dry-run]
+	 */
+	public function delete_guest_authors( $args, $assoc_args ) {
+		global $coauthors_plus;
+
+		$defaults = array(
+			'dry-run' => true,
+		);
+
+		$assoc_args = wp_parse_args( $assoc_args, $defaults );
+
+		$dry_run = $assoc_args['dry-run'];
+
+		// Safety first.
+		$filename_status = validate_file( $args[0] );
+
+		if ( 0 !== $filename_status ) {
+			WP_CLI::error( __( 'The provided file cannot be accessed. Please use either relative or absolute pathnames, and avoid using directory traversal such as ../ and other methods.', 'co-authors-plus' ) );
+		}
+
+		$filename = $args[0];
+
+		// Add custom error handling on fopen error.
+		set_error_handler(
+			function( $errno, $errstr, $errfile, $errline, array $errcontext ) {
+				WP_CLI::error( sprintf(
+					/* translators: %s: Error message */
+					__( 'Error while attempting to open file: %s', 'co-authors-plus' ),
+					$errstr
+				) );
+			},
+			E_WARNING
+		);
+
+		$file = fopen( $filename, 'rb' );
+
+		// Reset normal behaviour.
+		restore_error_handler();
+
+		// Are you really, really sure.
+		if ( false === $dry_run ) {
+			WP_CLI::confirm( __( 'You have provided the --no-dry-run flag. Please confirm you wish to delete guest authors.', 'co-authors-plus' ) );
+		} else {
+			WP_CLI::log( __( 'DRY RUN', 'co-authors-plus' ) );
+		}
+
+		while ( ( $line = fgetcsv( $file, 100, ',' ) ) !== false ) {
+			$id       = filter_var( $line[0], FILTER_SANITIZE_NUMBER_INT );
+			$assignee = filter_var( $line[1], FILTER_SANITIZE_STRING );
+
+			if ( true === $dry_run ) {
+				WP_CLI::log( sprintf(
+					/* translators: 1: Guest author ID 2: Intended assignee */
+					__( 'Attempting to delete guest author %1$d, intended assignee %2$s', 'co-authors-plus' ),
+					$id,
+					$assignee
+				) );
+			} else {
+				// Have to cast so the function won't literally try and reassign to user "false".
+				if ( 'false' === $assignee ) {
+					$assignee = false;
+				}
+
+				$delete_status = $coauthors_plus->guest_authors->delete( $id, $assignee );
+
+				if ( is_wp_error( $delete_status ) ) {
+					foreach ( $delete_status->get_error_messages() as $error_message ) {
+						WP_CLI::log( sprintf(
+							/* translators: 1: Guest author ID 2: Error message returned from guest author deletion attempt */
+							__( 'Error while attempting to delete guest author %1$d: %2$s', 'co-authors-plus' ),
+							$id,
+							$error_message
+						) );
+					}
+				} else {
+					WP_CLI::log( sprintf(
+						/* translators: %d: Guest author ID */
+						__( 'Successfully deleted guest author %d', 'co-authors-plus' ),
+						$id
+					) );
+				}
+			}
+		}
+
+		fclose( $file );
+
+	}
+
+	/**
 	 * Create author terms for all posts that don't have them
 	 *
 	 * @subcommand create-terms-for-posts
