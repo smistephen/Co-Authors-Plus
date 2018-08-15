@@ -164,13 +164,12 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 					) );
 				} else {
 					WP_CLI::log( sprintf(
-						/* translators: 1: Guest author ID 2: Intended assignee 3: Guest author display name 4: Guest author email 5: Guest author linked account */
-						__( 'Attempting to delete guest author %1$d, intended assignee %2$s. Display Name: %3$s Email: %4$s Linked Account: %5$s', 'co-authors-plus' ),
+						/* translators: 1: Guest author ID 2: Guest author display name 3: Guest author email 4: Intended assignee */
+						__( 'Attempting to delete guest author %1$d / %2$s / %3$s, intended assignee %4$s.', 'co-authors-plus' ),
 						$id,
-						$assignee,
 						$guest_author->display_name,
 						$guest_author->user_email,
-						$guest_author->linked_account
+						$assignee
 					) );
 				}
 			} else {
