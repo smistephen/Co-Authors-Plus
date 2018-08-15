@@ -128,7 +128,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 		while ( ( $line = fgetcsv( $file, 100, ',' ) ) !== false ) {
 			$id       = filter_var( $line[0], FILTER_SANITIZE_NUMBER_INT );
-			$assignee = filter_var( $line[1], FILTER_SANITIZE_STRING );
+			$assignee = filter_var( isset( $line[1] ) ? $line[1] : 'false', FILTER_SANITIZE_STRING );
 
 			$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $id );
 
