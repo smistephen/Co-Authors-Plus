@@ -128,13 +128,35 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 			$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'ID', $id );
 
+			// Check if assignee user exists.
+			$assignee_user = get_user_by( 'login', $assignee );
+
+			if ( false === $assignee_user ) {
+				$assignee_user = $coauthors_plus->guest_authors->get_guest_author_by( 'user_login', $assignee );
+			}
+
 			if ( true === $dry_run ) {
 
-				if ( false === $guest_author ) {
+				if ( false === $guest_author && false === $assignee_user ) {
 					WP_CLI::log( sprintf(
 						/* translators: 1: Guest author ID 2: Intended assignee */
-						__( 'Attempting to delete guest author %d, but they do not exist.', 'co-authors-plus' ),
-						$id
+						__( 'Attempting to delete guest author %1$d and reassign to user %2$s, but neither exists.', 'co-authors-plus' ),
+						$id,
+						$assignee
+					) );
+				} elseif ( false === $assignee_user ) {
+					WP_CLI::log( sprintf(
+						/* translators: 1: Guest author ID 2: Intended assignee */
+						__( 'Attempting to delete guest author %1$d and reassign to user %2$s, but assignee does not exist.', 'co-authors-plus' ),
+						$id,
+						$assignee
+					) );
+				} elseif ( false === $guest_author ) {
+					WP_CLI::log( sprintf(
+						/* translators: 1: Guest author ID 2: Intended assignee */
+						__( 'Attempting to delete guest author %1$d and reassign to user %2$s, but guest_author does not exist.', 'co-authors-plus' ),
+						$id,
+						$assignee
 					) );
 				} else {
 					WP_CLI::log( sprintf(
@@ -149,7 +171,10 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				}
 			} else {
 				// Have to cast so the function won't literally try and reassign to user "false".
-				if ( 'false' === $assignee ) {
+				// Unless there really is a user called "false", in which case $assignee_user would
+				// NOT be false, but instead contain information about the user named "false".
+				// I know, it's complicated.
+				if ( 'false' === $assignee && false === $assignee_user ) {
 					$assignee = false;
 				}
 

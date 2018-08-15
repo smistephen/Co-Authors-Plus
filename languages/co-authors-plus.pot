@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Co-Authors Plus 3.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/Co-Authors-Plus\n"
-"POT-Creation-Date: 2018-08-14 23:12:27+00:00\n"
+"POT-Creation-Date: 2018-08-15 11:42:39+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -537,28 +537,44 @@ msgid ""
 msgstr ""
 
 #. translators: %s: Error message
-#: php/class-wp-cli.php:101 php/customfopenstuff.php:8
+#: php/class-wp-cli.php:106 php/customfopenstuff.php:8
 msgid "Error while attempting to open file: %s"
 msgstr ""
 
-#: php/class-wp-cli.php:115
+#: php/class-wp-cli.php:120
 msgid ""
 "You have provided the --no-dry-run flag. Please confirm you wish to delete "
 "guest authors."
 msgstr ""
 
-#: php/class-wp-cli.php:117
+#: php/class-wp-cli.php:122
 msgid "DRY RUN"
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee
-#: php/class-wp-cli.php:131
-msgid "Attempting to delete guest author %d, but they do not exist."
+#: php/class-wp-cli.php:143
+msgid ""
+"Attempting to delete guest author %1$d and reassign to user %2$s, but "
+"neither exists."
+msgstr ""
+
+#. translators: 1: Guest author ID 2: Intended assignee
+#: php/class-wp-cli.php:150
+msgid ""
+"Attempting to delete guest author %1$d and reassign to user %2$s, but "
+"assignee does not exist."
+msgstr ""
+
+#. translators: 1: Guest author ID 2: Intended assignee
+#: php/class-wp-cli.php:157
+msgid ""
+"Attempting to delete guest author %1$d and reassign to user %2$s, but "
+"guest_author does not exist."
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee 3: Guest author display
 #. name 4: Guest author email 5: Guest author linked account
-#: php/class-wp-cli.php:137
+#: php/class-wp-cli.php:164
 msgid ""
 "Attempting to delete guest author %1$d, intended assignee %2$s. Display "
 "Name: %3$s Email: %4$s Linked Account: %5$s"
@@ -567,35 +583,35 @@ msgstr ""
 #. translators: 1: Guest author ID 2: Guest author display name 3: Guest author
 #. email 4: Intended assignee login 5: Error message returned from guest author
 #. deletion attempt
-#: php/class-wp-cli.php:157
+#: php/class-wp-cli.php:187
 msgid ""
 "Error while attempting to delete guest author %1$d / %2$s / $3$s and "
 "reassign to %4$s: %5$s"
 msgstr ""
 
 #. translators: 1: Guest author ID 2: Intended assignee login
-#: php/class-wp-cli.php:168
+#: php/class-wp-cli.php:198
 msgid ""
 "Successfully deleted guest author %1$d / %2$s / %3$s and reassigned to %4$s"
 msgstr ""
 
-#: php/class-wp-cli.php:362
+#: php/class-wp-cli.php:392
 msgid "Please specify a valid user_login"
 msgstr ""
 
-#: php/class-wp-cli.php:366
+#: php/class-wp-cli.php:396
 msgid "Please specify a valid co-author login"
 msgstr ""
 
-#: php/class-wp-cli.php:376
+#: php/class-wp-cli.php:406
 msgid "Skipping - Post #%d already has co-authors assigned: %s"
 msgstr ""
 
-#: php/class-wp-cli.php:384
+#: php/class-wp-cli.php:414
 msgid "Updating - Adding %s's byline to post #%d"
 msgstr ""
 
-#: php/class-wp-cli.php:390
+#: php/class-wp-cli.php:420
 msgid "All done! %d posts were affected."
 msgstr ""
 
