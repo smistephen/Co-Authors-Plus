@@ -51,7 +51,11 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * <guest-author-ids-file>
-	 * : Provide the location of a CSV file containing a list of two columns: guest author ID to delete, and either the string "false" (which means the deleted guest author's posts will not be reassigned) or a string denoting the login of the user or guest author the deleted guest author's posts are to be reassigned to. No column headers are required or allowed, and the maximum line length including ID, login, and comma is 100 characters.
+	 * : Provide the location of a CSV file containing a list of two columns:
+	 * - guest author ID to delete
+	 * - either the string "false" (which means the deleted guest author's posts will not be reassigned) or a string denoting the login of the user or guest author the deleted guest author's posts are to be reassigned to.
+	 *
+	 * No column headers are required or allowed, and the maximum line length including ID, login, and comma is 100 characters.
 	 *
 	 * [--dry-run]
 	 * : By default, the command outputs the IDs of the guest authors it would have attempted to delete, had this not been a dry run. When you are ready to modify data, pass --no-dry-run.
